@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>test</title>
+</head>
+<body> 
+<h1>Test of OpenAI's Whisper Text to Speech Model</h1>
+
+<div role="status" id="status"></div>
+<button id="browse">Upload mp3 file</button>
+<input hidden type="file" id="files">
+
+<hr>
+<output id="text"></output>
+
+<script type="module">
+const browse = document.querySelector("#browse");
+const files = document.querySelector("#files");
+const text = document.querySelector("#text");
+statusMessage("Ready.");
+
+browse.addEventListener("click", e => files.click());
+
+files.addEventListener("change", async () => {
+const reader = new FileReader();
+const contents = await files.files[0].arrayBuffer();
+const buffer = new Uint8Array(contents);
+console.log("buffer: ", buffer.length);
+statusMessage(`Processing ${buffer.length/1000000} mb; this may take a while...`);
+
+
+const res = await fetch("https://localhost:3000/", {
+method: "post", 
+mode: "same-origin",
+headers: {"content-type": "audio/mpeg"},
+body: buffer
+}); // fetch
+
+const data = await res.json();
+await console.log(data);
+text.textContent = data.text;
+statusMessage("Done.");
+
+}); // got file
+
+function statusMessage (text) {
+document.querySelector("#status").textContent = text;
+} // statusMessage
+
+</script>
+
+
+</body>
+</html>
